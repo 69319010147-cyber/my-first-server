@@ -1,36 +1,113 @@
-const http = require('http');
-// 1. เรียกใชงาน Pool จากไลบรารี pg สําหรับจัดการการเชื่อมตอฐานขอมูล
-const { Pool } = require('pg');
-// 2. ตั้งคาการเชื่อมตอ โดยดึง URL มาจาก Environment Variable ของ Railway
-const pool = new Pool({
-connectionString: process.env.DATABASE_URL,
-});
-const port = process.env.PORT || 3000;
-const server = http.createServer(async (req, res) => {
-res.statusCode = 200;
-res.setHeader('Content-Type', 'text/html; charset=utf-8');
+let html = `
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Winter Forest Database</title>
 
-try {
-// 3. ขอเชื่อมตอและสงคําสั่ง SQL ไปดึงขอมูลจากตาราง students
-const client = await pool.connect();
-const result = await client.query('SELECT * FROM students');
-client.release(); // คนืการเชื่อมตอเมื่อใชงานเสร็จ
-// 4. นําขอมูลที่ได(result.rows) มาประกอบเปนตาราง HTML
-let html = `<h1>ฐานข้อมูลนักศึกษา (ทดสอบการเชื่อมต่อ)</h1>`;
-html += `<table border="1" cellpadding="10">`;
-html += `<tr><th>69319010147</th><th>กฤษตเดชา เดชะมา</th></tr>`;
-// วนลูปนําขอมูลแตละแถวมาแสดง
-result.rows.forEach(row => {
-html += `<tr><td>${row.student_id}</td><td>${row.student_name}</td></tr>`;
-});
-html += `</table>`;
-res.end(html);
-} catch (err) {
-// กรณเีชื่อมตอไมไดหรือเขียนชื่อตารางผิด
-console.error(err);
-res.end(`<h1>เกิดข้อผิดพลาด!</h1><p>${err.message}</p>`);
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
-});
-server.listen(port, () => {
-console.log(`Server is running on port: ${port}`);
-});
+
+body{
+font-family:Arial,sans-serif;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+
+background:
+linear-gradient(rgba(20,40,70,.45),rgba(20,40,70,.45)),
+url("https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=1600&q=80")
+center/cover no-repeat;
+}
+
+.card{
+background:rgba(255,255,255,.15);
+backdrop-filter:blur(10px);
+border:1px solid rgba(255,255,255,.3);
+padding:35px;
+border-radius:20px;
+width:700px;
+color:white;
+box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+background:rgba(255,255,255,.1);
+}
+
+th,td{
+padding:12px;
+border:1px solid rgba(255,255,255,.2);
+text-align:center;
+}
+
+th{
+background:rgba(255,255,255,.2);
+}
+
+tr:hover{
+background:rgba(255,255,255,.15);
+}
+
+.status{
+margin-top:20px;
+text-align:center;
+font-weight:bold;
+color:#9cff9c;
+}
+
+.snow{
+position:absolute;
+width:8px;
+height:8px;
+background:white;
+border-radius:50%;
+animation:snow linear infinite;
+opacity:.8;
+}
+
+@keyframes snow{
+from{
+transform:translateY(-100vh);
+}
+to{
+transform:translateY(100vh);
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>❄ Winter Forest Database ❄</h1>
+
+<p style="text-align:center">
+นายกฤษตเดชา เดชะมา<br>
+รหัสนักศึกษา 69319010147
+</p>
+
+<table>
+
+<tr>
+<th>รหัสนักศึกษา</th>
+<th>ชื่อ-นามสกุล</th>
+</tr>
+`;
